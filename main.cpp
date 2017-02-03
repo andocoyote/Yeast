@@ -8,93 +8,111 @@
 
 using namespace std;
 
-int menu(); //displays the user menu, returns the menu selection
+int menu(); //Displays the user menu, returns the menu selection
 
 // Align Glusose so we can use it with InterlockedDecrement
-__declspec(align(32)) LONG volatile Glucose = 5;
+__declspec(align(32)) LONG Glucose = 0;
 
-//begin main function
+//Begin main function
 void main()
 {
-	UINT choice; //menu choice from user
-	BOOL exit = false;	//user wants to exit program?
-	WCHAR selection = L'n';
+    UINT choice; //Menu choice from user
+    BOOL exit = false;	//User wants to exit program?
+    UINT selection = 0;
+    WCHAR* yeast1Name = L"Saccaromyces Cerevisiae";
+    WCHAR* yeast2Name = L"Brettanomyces bruxellensis";
     unique_ptr<Yeast> yeast1 = nullptr;
     unique_ptr<Yeast> yeast2 = nullptr;
 
-	do //while (!exit)
+    do //while (!exit)
 	{
-		choice = menu(); //display user menu and get selection
+        choice = menu(); //Display user menu and get selection
 
-		switch(choice) //perform switch on choice from menu
-		{
-				//user wants to add a name to the list
-		case 1: wcout << L"Playing with yeast:\n";
+        switch(choice) //Perform switch on choice from menu
+        {
+				//User wants to create yeast
+        case 1: wcout << L"Creating yeast:\n";
 
-                yeast1 = unique_ptr<Yeast>(new Yeast(&Glucose));
-                yeast2 = unique_ptr<Yeast>(new Yeast(&Glucose));
+                yeast1 = unique_ptr<Yeast>(new Yeast(yeast1Name, &Glucose));
+                yeast2 = unique_ptr<Yeast>(new Yeast(yeast2Name, &Glucose));
                 
-                while(Glucose > 0)
+                if(yeast1)
                 {
-                    yeast1->Print();
-                    yeast1->Run();
-                    
-                    yeast2->Print();
-                    yeast2->Run();
+                    wcout << yeast1Name << " created.\n";
+                }
+                else
+                {
+                    wcout << "Failed to create " << yeast1Name << ".\n";
                 }
                 
-				exit = false; 
-				break;
+                if(yeast2)
+                {
+                    wcout << yeast2Name << " created.\n";
+                }
+                else
+                {
+                    wcout << "Failed to create " << yeast2Name << ".\n";
+                }
+                
+                exit = false; 
+                break;
 				
-				// User wants to sort via Selection Sort
-		case 2: wcout << L"Do you want to show the sorting algorithm's work? (y/n): ";
-				wcin >> selection;
+				// User wants to add more glucose
+        case 2: wcout << L"How much glucose would you like to create? (int): ";
+                wcin >> selection;
 				
-				exit = false; 
-				break;
+                // TODO: Use mutex to += glucose for user's entered value
+                Glucose += selection;
+                
+                exit = false; 
+                break;
 				
-				// User wants to sort via Insertion Sort
-		case 3: wcout << L"Do you want to show the sorting algorithm's work? (y/n): ";
-				wcin >> selection;
+				// User wants to feed the yeast
+        case 3: wcout << L"Feeding yeast\n";
 				
-				exit = false; 
-				break;
-				
-				// User wants to sort via Bubble Sort
-		case 4: wcout << L"Do you want to show the sorting algorithm's work? (y/n): ";
-				wcin >> selection;
-				
-				exit = false; 
-				break;
+                // While glucose exists (>0), let the yeast eat
+                if(yeast1 && yeast2)
+                {
+                    while(Glucose > 0)
+                    {
+                        yeast1->Print();
+                        yeast1->Run();
+                        
+                        yeast2->Print();
+                        yeast2->Run();
+                    }
+                }
+                
+                exit = false; 
+                break;
 
-				//user wants to exit the program
-		case 0: exit = true;
-				break;
+				//User wants to exit the program
+        case 0: exit = true;
+                break;
 				
-		default:
-				break;
-		}
+        default:
+                break;
+        }
 
-	}while(!exit);//end do while loop for main program
+    }while(!exit);//End do while loop for main program
 
-}//end of main program
+}//End of main program
 
 //-----------------------------------------------------------------------
 
-//beginning of menu()
+//Beginning of menu()
 int menu()
 {
-	int selection; //holds the user's menu choice
+    int selection; //Holds the user's menu choice
 
-	//display the menu
-	wcout << L"Please choose from the following options" << endl;
-	wcout << L"1.  Display the array" << endl;
-	wcout << L"2.  Sort the array using Selection Sort" << endl;
-	wcout << L"3.  Sort the array using Insertion Sort" << endl;
-	wcout << L"4.  Sort the array using Bubble Sort" << endl;
-	wcout << L"0.  Exit the program" << endl;
-	wcout << L": ";
-	wcin >> selection; //get the selection from the menu
+	//Display the menu
+    wcout << L"Please choose from the following options" << endl;
+    wcout << L"1.  Create yeast" << endl;
+    wcout << L"2.  Create glucose" << endl;
+    wcout << L"3.  Feed yeast" << endl;
+    wcout << L"0.  Exit the program" << endl;
+    wcout << L": ";
+    wcin >> selection; //Get the selection from the menu
 
-	return selection; //return the selection to main program
-}//end function menu()
+    return selection; //Return the selection to main program
+}//End function menu()

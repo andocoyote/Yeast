@@ -1,18 +1,18 @@
 #include "yeast.h"
 
-Yeast::Yeast()
+Yeast::Yeast(WCHAR* Name)
 {
-    m_name = unique_ptr<wchar_t[]>(new wchar_t[29](L"Saccharomyces cerevisiae"));
+    m_name = Name;
 }
 
-Yeast::Yeast(LONG volatile *Glucose) : Yeast()
+Yeast::Yeast(WCHAR* Name, LONG *Glucose) : Yeast(Name)
 {
     m_glucose = Glucose;
 }
 
 void Yeast::Print()
 {
-    wcout << L"Name: " << m_name.get() << endl;
+    wcout << L"Yeast: " << m_name << endl;
 }
 
 void Yeast::Run()
