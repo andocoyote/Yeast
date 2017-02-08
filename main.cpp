@@ -3,56 +3,55 @@
 #include <ctime>
 #include <cstdlib>
 #include <memory>
+#include <vector>
 
 #include "yeast.h"
 
 using namespace std;
 
-int menu(); //Displays the user menu, returns the menu selection
+// Displays the user menu, returns the menu selection
+int menu(); 
 
 // Align Glusose so we can use it with InterlockedDecrement
 __declspec(align(32)) LONG Glucose = 0;
 
-//Begin main function
+// Begin main function
 void main()
 {
-    UINT choice; //Menu choice from user
-    BOOL exit = false;	//User wants to exit program?
+    UINT choice; // Menu choice from user
+    BOOL exit = false;	// User wants to exit program?
     UINT selection = 0;
+    UINT yeastCount = 0;
     WCHAR* yeast1Name = L"Saccaromyces Cerevisiae";
     WCHAR* yeast2Name = L"Brettanomyces bruxellensis";
-    unique_ptr<Yeast> yeast1 = nullptr;
-    unique_ptr<Yeast> yeast2 = nullptr;
+    vector<unique_ptr<Yeast>> yeast;
 
-    do //while (!exit)
+    do // while (!exit)
 	{
-        choice = menu(); //Display user menu and get selection
+        choice = menu(); // Display user menu and get selection
 
-        switch(choice) //Perform switch on choice from menu
+        switch(choice) // Perform switch on choice from menu
         {
-				//User wants to create yeast
-        case 1: wcout << L"Creating yeast:\n";
-
-                yeast1 = unique_ptr<Yeast>(new Yeast(yeast1Name, &Glucose));
-                yeast2 = unique_ptr<Yeast>(new Yeast(yeast2Name, &Glucose));
+				// User wants to create yeast
+        case 1: wcout << L"How many yeast would you like to create? (int): ";
+                wcin >> yeastCount;
                 
-                if(yeast1)
+                for(DWORD i = 0; i < yeastCount; i++)
                 {
-                    wcout << yeast1Name << " created.\n";
-                }
-                else
-                {
-                    wcout << "Failed to create " << yeast1Name << ".\n";
+                    unique_ptr<Yeast> tempYeast(new Yeast(yeast1Name, &Glucose));
+                
+                    if(tempYeast)
+                    {
+                        wcout << yeast1Name << " created.\n";
+                        yeast.push_back(std::move(tempYeast));
+                    }
+                    else
+                    {
+                        wcout << "Failed to create " << yeast1Name << ".\n";
+                    }
                 }
                 
-                if(yeast2)
-                {
-                    wcout << yeast2Name << " created.\n";
-                }
-                else
-                {
-                    wcout << "Failed to create " << yeast2Name << ".\n";
-                }
+                wcout << yeast.size() << " yeast were created.\n";
                 
                 exit = false; 
                 break;
@@ -66,27 +65,7 @@ void main()
                 
                 exit = false; 
                 break;
-				
-				// User wants to feed the yeast
-        case 3: wcout << L"Feeding yeast\n";
-				
-                // While glucose exists (>0), let the yeast eat
-                if(yeast1 && yeast2)
-                {
-                    while(Glucose > 0)
-                    {
-                        yeast1->Print();
-                        yeast1->Run();
-                        
-                        yeast2->Print();
-                        yeast2->Run();
-                    }
-                }
-                
-                exit = false; 
-                break;
-
-				//User wants to exit the program
+        
         case 0: exit = true;
                 break;
 				
@@ -109,10 +88,12 @@ int menu()
     wcout << L"Please choose from the following options" << endl;
     wcout << L"1.  Create yeast" << endl;
     wcout << L"2.  Create glucose" << endl;
-    wcout << L"3.  Feed yeast" << endl;
     wcout << L"0.  Exit the program" << endl;
     wcout << L": ";
     wcin >> selection; //Get the selection from the menu
 
     return selection; //Return the selection to main program
 }//End function menu()
+
+//-----------------------------------------------------------------------
+

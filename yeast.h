@@ -13,10 +13,15 @@ class Yeast
 public:
     Yeast(WCHAR* Name);
     Yeast(WCHAR* Name, LONG *Glucose);
+    ~Yeast();
+    
     VOID Print();
-    VOID Run();
+    static DWORD WINAPI Run(LPVOID Param);
+    DWORD Run();
     
 private:
+
+    VOID Initialize();
 
     VOID Glycolysis();
     
@@ -25,8 +30,12 @@ private:
     LONG m_ATP = 0;
     LONG m_NADH = 0;
     LONG m_pyruvate = 0;
+    BOOL m_isInitialized = TRUE;
     
     LONG *m_glucose = 0;
+    
+    HANDLE m_yeastThread = 0;
+    DWORD m_yeastId = 0;
 };
 
 //unique_ptr<WCHAR[]>m_name = nullptr;
